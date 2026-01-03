@@ -6,8 +6,10 @@ import { Card } from '../components/ui/Card'
 import { WordListItem } from '../components/game/WordListItem'
 import { useRouter } from 'expo-router'
 import { useGameStore } from '../store/gameStore'
-import { Alert, Modal, TextInput } from 'react-native'
-import { MIN_PLAYERS, MIN_IMPOSTORS } from '../utils/constants'
+import { Alert, Modal, TextInput, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, View } from 'react-native'
+import { MIN_PLAYERS, MIN_IMPOSTORS, DEFAULT_WORDS } from '../utils/constants'
+import { generateWords } from '../utils/aiService'
+import type { Word } from '../store/types'
 
 export default function ConfigScreen() {
   const router = useRouter()
@@ -20,6 +22,7 @@ export default function ConfigScreen() {
     addWord,
     editWord,
     deleteWord,
+    resetWords,
   } = useGameStore()
 
   const [showModal, setShowModal] = useState(false)
@@ -28,6 +31,13 @@ export default function ConfigScreen() {
   const [newHint1, setNewHint1] = useState('')
   const [newHint2, setNewHint2] = useState('')
   const [newHint3, setNewHint3] = useState('')
+
+  // Estado para generación con IA
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedWords, setGeneratedWords] = useState<Word[]>([])
+  const [showPreview, setShowPreview] = useState(false)
 
   const handleSaveWord = () => {
     if (!newWord.trim() || !newHint1.trim() || !newHint2.trim() || !newHint3.trim()) {
@@ -78,6 +88,43 @@ export default function ConfigScreen() {
     setNewHint2('')
     setNewHint3('')
     setShowModal(true)
+  }
+
+  const handleGenerateAI = async () => {
+    if (!aiPrompt.trim()) {
+      Alert.alert('Error', 'Debes ingresar una descripción de las palabras a generar')
+      return
+    }
+
+    setIsGenerating(true)
+    try {
+      const words = await generateWords(aiPrompt)
+      setGeneratedWords(words)
+      setShowAIModal(false)
+      setShowPreview(true)
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'No se pudieron generar las palabras'
+      )
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleAcceptGenerated = () => {
+    generatedWords.forEach(word => {
+      addWord(word.word, word.hints)
+    })
+    setShowPreview(false)
+    setGeneratedWords([])
+    setAiPrompt('')
+  }
+
+  const handleCancelGenerated = () => {
+    setShowPreview(false)
+    setGeneratedWords([])
+    setAiPrompt('')
   }
 
   return (
@@ -193,9 +240,30 @@ export default function ConfigScreen() {
                 <Text fontSize="$6" fontWeight="700" color="$color">
                   Palabras ({words.length})
                 </Text>
-                <Button size="$3" variant="secondary" onPress={handleAddNew}>
-                  <Text>➕ Agregar</Text>
-                </Button>
+                <XStack gap="$2">
+                  {/* <Button size="$3" variant="secondary" onPress={() => setShowAIModal(true)}>
+                    <Text>✨ IA</Text>
+                  </Button> */}
+                  <Button 
+                    size="$3" 
+                    variant="outline" 
+                    onPress={() => {
+                      Alert.alert(
+                        'Resetear Palabras',
+                        `¿Cargar las ${DEFAULT_WORDS.length} palabras por defecto? Esto reemplazará todas las palabras actuales.`,
+                        [
+                          { text: 'Cancelar', style: 'cancel' },
+                          { text: 'Resetear', style: 'destructive', onPress: resetWords }
+                        ]
+                      )
+                    }}
+                  >
+                    <Text>🔄</Text>
+                  </Button>
+                  <Button size="$3" variant="secondary" onPress={handleAddNew}>
+                    <Text>➕ Agregar</Text>
+                  </Button>
+                </XStack>
               </XStack>
 
               <YStack gap="$2">
@@ -320,6 +388,131 @@ export default function ConfigScreen() {
               </YStack>
             </Card>
           </YStack>
+        </Modal>
+
+        {/* Modal para generar con IA */}
+        <Modal visible={showAIModal} animationType="slide" transparent>
+          <TouchableWithoutFeedback onPress={() => !isGenerating && setShowAIModal(false)}>
+            <YStack flex={1} backgroundColor="rgba(0,0,0,0.5)" justifyContent="flex-end">
+              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                <Card backgroundColor="$background" borderRadius="$6" padding="$5" margin="$4">
+                  <YStack gap="$4">
+                    <Text fontSize="$6" fontWeight="700" color="$color">
+                      ✨ Generar Palabras con IA
+                    </Text>
+
+                    <YStack gap="$2">
+                      <Text fontSize="$4" color="$colorSecondary">
+                        ¿Qué palabras quieres generar?
+                      </Text>
+                      <TextInput
+                        value={aiPrompt}
+                        onChangeText={setAiPrompt}
+                        placeholder="Ej: 10 animales salvajes, 5 jugadores de fútbol argentinos..."
+                        multiline
+                        numberOfLines={3}
+                        editable={!isGenerating}
+                        style={{
+                          fontSize: 16,
+                          padding: 12,
+                          borderRadius: 8,
+                          borderWidth: 1,
+                          borderColor: '#DEE2E6',
+                          backgroundColor: '#FFFFFF',
+                          minHeight: 80,
+                          textAlignVertical: 'top',
+                        }}
+                      />
+                      <Text fontSize="$3" color="$colorSecondary" opacity={0.7}>
+                        Máximo 25 palabras por generación
+                      </Text>
+                    </YStack>
+
+                    <XStack gap="$3" marginTop="$2">
+                      <Button
+                        flex={1}
+                        variant="ghost"
+                        onPress={() => {
+                          setShowAIModal(false)
+                          setAiPrompt('')
+                        }}
+                        disabled={isGenerating}
+                      >
+                        <Text>Cancelar</Text>
+                      </Button>
+                      <Button
+                        flex={1}
+                        variant="primary"
+                        onPress={handleGenerateAI}
+                        disabled={isGenerating}
+                        opacity={isGenerating ? 0.7 : 1}
+                      >
+                        <Text>{isGenerating ? 'Generando...' : 'Generar'}</Text>
+                      </Button>
+                    </XStack>
+                  </YStack>
+                </Card>
+              </TouchableWithoutFeedback>
+            </YStack>
+          </TouchableWithoutFeedback>
+        </Modal>
+
+        {/* Modal de Preview de palabras generadas */}
+        <Modal visible={showPreview} animationType="slide" transparent>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <TouchableWithoutFeedback onPress={handleCancelGenerated}>
+              <View style={{ flex: 1 }} />
+            </TouchableWithoutFeedback>
+            <View
+              style={{
+                backgroundColor: '#16213E',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: 20,
+                maxHeight: '70%',
+              }}
+            >
+              <Text fontSize="$5" fontWeight="700" color="#ECF0F1" marginBottom="$3">
+                Palabras Generadas ({generatedWords.length})
+              </Text>
+
+              <ScrollView
+                showsVerticalScrollIndicator={true}
+                style={{ maxHeight: 400 }}
+                contentContainerStyle={{ paddingBottom: 8 }}
+              >
+                {generatedWords.map((word, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      backgroundColor: '#0F3460',
+                      borderWidth: 1,
+                      borderColor: '#34495E',
+                      borderRadius: 8,
+                      padding: 12,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Text fontSize="$4" fontWeight="700" color="#ECF0F1" marginBottom="$2">
+                      {word.word}
+                    </Text>
+                    <Text fontSize="$3" color="#BDC3C7">
+                      {word.hints[0]} • {word.hints[1]} • {word.hints[2]}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+
+              <XStack gap="$3" marginTop="$4">
+                <Button flex={1} variant="ghost" onPress={handleCancelGenerated}>
+                  <Text>Descartar</Text>
+                </Button>
+                <Button flex={1} variant="primary" onPress={handleAcceptGenerated}>
+                  <Text>Agregar Todas</Text>
+                </Button>
+              </XStack>
+            </View>
+          </View>
         </Modal>
       </YStack>
     </Container>

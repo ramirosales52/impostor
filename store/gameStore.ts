@@ -27,6 +27,7 @@ interface GameStore {
   addWord: (word: string, hints: [string, string, string]) => void
   editWord: (index: number, word: string, hints: [string, string, string]) => void
   deleteWord: (index: number) => void
+  resetWords: () => void
 
   // Actions - Game
   startGame: () => void
@@ -81,6 +82,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newWords = get().words.filter((_, i) => i !== index)
     set({ words: newWords })
     storage.saveWords(newWords)
+  },
+
+  resetWords: () => {
+    set({ words: DEFAULT_WORDS })
+    storage.saveWords(DEFAULT_WORDS)
   },
 
   // Game actions
