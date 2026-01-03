@@ -3,7 +3,8 @@ import { Word, GameState, PlayerRole } from '../store/types'
 export function assignRoles(
   numPlayers: number,
   numImpostors: number,
-  words: Word[]
+  words: Word[],
+  noHints: boolean = false
 ): GameState {
   if (words.length === 0) {
     throw new Error('No hay palabras disponibles')
@@ -16,9 +17,9 @@ export function assignRoles(
   // 1. Elegir palabra aleatoria
   const selectedWord = words[Math.floor(Math.random() * words.length)]
   
-  // 2. Elegir una pista aleatoria de las 3 disponibles
+  // 2. Elegir una pista aleatoria de las 3 disponibles (o ninguna si noHints)
   const randomHintIndex = Math.floor(Math.random() * 3)
-  const selectedHint = selectedWord.hints[randomHintIndex]
+  const selectedHint = noHints ? '' : selectedWord.hints[randomHintIndex]
 
   // 3. Crear array de índices [0, 1, 2, ..., numPlayers-1]
   const indices = Array.from({ length: numPlayers }, (_, i) => i)
@@ -38,11 +39,15 @@ export function assignRoles(
     revealed: false,
   }))
 
+  // 7. Elegir jugador aleatorio que empieza (1-based)
+  const startingPlayer = Math.floor(Math.random() * numPlayers) + 1
+
   return {
     secretWord: selectedWord.word,
     hint: selectedHint,
     roles,
     currentPlayerIndex: 0,
+    startingPlayer,
   }
 }
 

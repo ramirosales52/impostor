@@ -34,7 +34,7 @@ export default function PlayingScreen() {
           🎮
         </Text>
         <Text fontSize="$8" fontWeight="900" color="$primary" textAlign="center">
-          ¡Jugando!
+          Empieza Jugador {currentGame.startingPlayer}
         </Text>
       </AnimatedYStack>
 

@@ -8,6 +8,7 @@ interface GameStore {
   // Config
   numPlayers: number
   numImpostors: number
+  noHints: boolean
 
   // Palabras
   words: Word[]
@@ -21,6 +22,7 @@ interface GameStore {
   // Actions - Config
   setNumPlayers: (n: number) => void
   setNumImpostors: (n: number) => void
+  setNoHints: (value: boolean) => void
 
   // Actions - Words
   loadWords: () => Promise<void>
@@ -44,6 +46,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
   numPlayers: 5,
   numImpostors: 1,
+  noHints: false,
   words: DEFAULT_WORDS,
   currentGame: null,
   isLoading: true,
@@ -57,6 +60,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setNumImpostors: (n) => {
     set({ numImpostors: n })
     storage.saveConfig({ numPlayers: get().numPlayers, numImpostors: n })
+  },
+
+  setNoHints: (value) => {
+    set({ noHints: value })
   },
 
   // Words actions
@@ -91,8 +98,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Game actions
   startGame: () => {
-    const { numPlayers, numImpostors, words } = get()
-    const gameState = assignRoles(numPlayers, numImpostors, words)
+    const { numPlayers, numImpostors, words, noHints } = get()
+    const gameState = assignRoles(numPlayers, numImpostors, words, noHints)
     set({ currentGame: gameState })
   },
 

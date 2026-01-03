@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { XStack, Text, YStack } from 'tamagui'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -10,7 +11,7 @@ interface WordListItemProps {
   onDelete: () => void
 }
 
-export function WordListItem({ word, hints, onEdit, onDelete }: WordListItemProps) {
+export const WordListItem = memo(function WordListItem({ word, hints, onEdit, onDelete }: WordListItemProps) {
   return (
     <Card pressable>
       <XStack gap="$3" alignItems="center" justifyContent="space-between">
@@ -34,4 +35,4 @@ export function WordListItem({ word, hints, onEdit, onDelete }: WordListItemProp
       </XStack>
     </Card>
   )
-}
+})

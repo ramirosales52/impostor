@@ -13,6 +13,7 @@ export interface GameState {
   hint: string
   roles: PlayerRole[]
   currentPlayerIndex: number
+  startingPlayer: number
 }
 
 export interface GameConfig {
