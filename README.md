@@ -1,50 +1,104 @@
-# Welcome to your Expo app 👋
+# Impostor - Juego de Roles
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Un juego social para móviles donde los jugadores deben descubrir al impostor entre ellos. Se juega pasándose un solo teléfono entre los participantes.
 
-## Get started
+## Cómo Jugar
 
-1. Install dependencies
+1. **Configuración**: Define el número de jugadores e impostores
+2. **Revelación**: Cada jugador ve su rol (palabra secreta o impostor con pista) mediante "tap to reveal"
+3. **Juego**: Por turnos, cada jugador dice una palabra relacionada con la palabra secreta
+4. **El impostor**: Debe camuflarse e inferir la palabra sin quedar regalado
+5. **Discusión**: Al final, todos votan para descubrir al impostor
 
+## Características
+
+- Tap to reveal con animación flip 3D
+- Gestión completa de palabras (agregar, editar, eliminar)
+- Persistencia local de palabras personalizadas
+- 20 palabras predefinidas en español
+- UI colorida tipo juego con Tamagui
+- Animaciones fluidas con React Native Reanimated
+- Haptic feedback en interacciones
+- Soporte para modo claro/oscuro
+
+## Tecnologías
+
+- **Expo** - Framework React Native
+- **Tamagui** - Sistema de diseño y componentes UI
+- **Zustand** - Manejo de estado global
+- **AsyncStorage** - Persistencia local
+- **React Native Reanimated** - Animaciones nativas
+- **Expo Router** - Navegación basada en archivos
+- **TypeScript** - Tipado estático
+
+## Estructura del Proyecto
+
+```
+impostor/
+├── app/                    # Pantallas (Expo Router)
+│   ├── index.tsx          # Home
+│   ├── config.tsx         # Configuración y gestión de palabras
+│   └── game/              # Flujo del juego
+│       ├── reveal-role.tsx
+│       └── playing.tsx
+├── components/            # Componentes reutilizables
+│   ├── ui/               # Componentes UI base
+│   └── game/             # Componentes específicos del juego
+├── store/                # Estado global (Zustand)
+├── utils/                # Utilidades
+│   ├── constants.ts      # Palabras iniciales y constantes
+│   ├── gameLogic.ts      # Lógica de asignación de roles
+│   └── storage.ts        # AsyncStorage wrapper
+└── tamagui.config.ts     # Configuración de Tamagui
+```
+
+## Instalación
+
+1. Instalar dependencias:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. Iniciar el servidor de desarrollo:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Escanear el QR con la app Expo Go o correr en un emulador:
+   - Presiona `a` para Android
+   - Presiona `i` para iOS
+   - Presiona `w` para web
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Configuración
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Jugadores e Impostores
 
-## Get a fresh project
+- Jugadores: 3-10
+- Impostores: 1-3 (debe ser menor al número de jugadores)
 
-When you're ready, run:
+### Palabras
 
-```bash
-npm run reset-project
+El juego viene con 20 palabras predefinidas. Puedes agregar, editar o eliminar palabras desde la pantalla de configuración. Las palabras se guardan localmente en el dispositivo.
+
+Formato de palabra:
+- **Palabra**: La palabra secreta que verán los jugadores normales
+- **Pista**: Una palabra relacionada que verá el impostor
+
+## Scripts Disponibles
+
+- `npm start` - Iniciar Expo
+- `npm run android` - Correr en Android
+- `npm run ios` - Correr en iOS
+- `npm run web` - Correr en web
+
+## Flujo del Juego
+
+```
+Home → Config (opcional) → Jugar → Revelar Roles (1 por 1) → Jugando → Fin
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. **Home**: Botón para jugar y configurar
+2. **Config**: Ajustar participantes/impostores y gestionar palabras
+3. **Revelar Roles**: Cada jugador toca para ver su rol, luego pasa al siguiente
+4. **Jugando**: Pantalla informativa durante el juego
+5. **Terminar**: Resetea el juego y vuelve al home
