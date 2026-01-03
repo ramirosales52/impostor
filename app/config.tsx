@@ -6,7 +6,7 @@ import { Card } from '../components/ui/Card'
 import { WordListItem } from '../components/game/WordListItem'
 import { useRouter } from 'expo-router'
 import { useGameStore } from '../store/gameStore'
-import { Alert, Modal, TextInput, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, View } from 'react-native'
+import { Alert, Modal, TextInput, TouchableWithoutFeedback, KeyboardAvoidingView, Platform, View, FlatList } from 'react-native'
 import { MIN_PLAYERS, MIN_IMPOSTORS, DEFAULT_WORDS } from '../utils/constants'
 import { generateWords } from '../utils/aiService'
 import type { Word } from '../store/types'
@@ -266,17 +266,26 @@ export default function ConfigScreen() {
                 </XStack>
               </XStack>
 
-              <YStack gap="$2">
-                {words.map((word, index) => (
-                  <WordListItem
-                    key={index}
-                    word={word.word}
-                    hints={word.hints}
-                    onEdit={() => handleEdit(index)}
-                    onDelete={() => handleDelete(index)}
-                  />
-                ))}
-              </YStack>
+              <View style={{ height: 400 }}>
+                <FlatList
+                  data={words}
+                  keyExtractor={(item, index) => `word-${index}`}
+                  renderItem={({ item, index }) => (
+                    <WordListItem
+                      word={item.word}
+                      hints={item.hints}
+                      onEdit={() => handleEdit(index)}
+                      onDelete={() => handleDelete(index)}
+                    />
+                  )}
+                  ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                  initialNumToRender={20}
+                  maxToRenderPerBatch={10}
+                  windowSize={5}
+                  removeClippedSubviews={true}
+                  showsVerticalScrollIndicator={true}
+                />
+              </View>
             </YStack>
           </YStack>
         </ScrollView>
