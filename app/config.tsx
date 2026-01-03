@@ -241,9 +241,9 @@ export default function ConfigScreen() {
                   Palabras ({words.length})
                 </Text>
                 <XStack gap="$2">
-                  {/* <Button size="$3" variant="secondary" onPress={() => setShowAIModal(true)}>
+                  <Button size="$3" variant="secondary" onPress={() => setShowAIModal(true)}>
                     <Text>✨ IA</Text>
-                  </Button> */}
+                  </Button>
                   <Button 
                     size="$3" 
                     variant="outline" 
