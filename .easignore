@@ -1,0 +1,11 @@
+# Excluir archivos innecesarios del build
+*.md
+.vscode/
+.git/
+.expo/
+node_modules/.cache/
+*.log
+.DS_Store
+*.orig
+test-ai.js
+.env.example
