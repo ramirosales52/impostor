@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { Word } from '../store/types'
 
-const API_KEY = 'TU_API_KEY_AQUI' // Reemplazar con tu API key de Google Gemini
+const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || ''
 const genAI = new GoogleGenerativeAI(API_KEY)
 
 const SYSTEM_PROMPT = `Eres un asistente que genera palabras para un juego estilo "Impostor" donde hay una palabra y un impostor que no sabe la misma.
