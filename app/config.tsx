@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from 'react'
-import { YStack, H2, Text, XStack, Input as TamaguiInput, Switch } from 'tamagui'
+import { YStack, H2, Text, XStack, Input as TamaguiInput, Checkbox } from 'tamagui'
 import { Container } from '../components/ui/Container'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -233,13 +233,15 @@ export default function ConfigScreen() {
                   <Text fontSize="$4" color="$colorSecondary">
                     Sin pista
                   </Text>
-                  <Switch
-                    size="$4"
+                  <Checkbox
+                    size="$5"
                     checked={noHints}
                     onCheckedChange={setNoHints}
                   >
-                    <Switch.Thumb />
-                  </Switch>
+                    <Checkbox.Indicator>
+                      <Text>✓</Text>
+                    </Checkbox.Indicator>
+                  </Checkbox>
                 </XStack>
               </YStack>
             </Card>
